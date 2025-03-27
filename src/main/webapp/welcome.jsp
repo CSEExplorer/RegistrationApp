@@ -1,13 +1,19 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>Welcome</title>
 </head>
 <body>
-       <h2>Welcome, <%= request.getAttribute("name") %>!</h2>
-    <p>Your email: <%= request.getAttribute("email") %></p>
+    <%
+        String name = (String) session.getAttribute("username");
+        String email = (String) session.getAttribute("useremail");
+
+        if (name == null) name = "Guest";
+        if (email == null) email = "Not provided";
+    %>
+    <h2>Welcome, <%= name %>!</h2>
+    <p>Your email: <%= email %></p>
 </body>
 </html>

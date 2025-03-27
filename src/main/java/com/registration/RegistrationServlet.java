@@ -6,13 +6,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/register")
 public class RegistrationServlet extends HttpServlet {
@@ -33,12 +33,11 @@ public class RegistrationServlet extends HttpServlet {
 		String dbPassword = "root"; // Change if needed
 
 		try {
-			// Load MySQL Driver
-//            Class.forName("com.mysql.cj.jdbc.Driver");
-
-			// Establish database connection
+			Class.forName("com.mysql.cj.jdbc.Driver");
 			try (Connection conn = DriverManager.getConnection(jdbcURL, dbUser, dbPassword)) {
-				System.out.println("Databses Connected ");
+				System.out.println("Database Connected");
+
+				// Insert into database
 				String sql = "INSERT INTO table1 (name, email) VALUES (?, ?)";
 				PreparedStatement stmt = conn.prepareStatement(sql);
 				stmt.setString(1, name);
@@ -46,7 +45,15 @@ public class RegistrationServlet extends HttpServlet {
 
 				int rowsInserted = stmt.executeUpdate();
 				if (rowsInserted > 0) {
-					out.println("<h2>Registration Successful!</h2>");
+					// Store user data in session
+					HttpSession session = request.getSession();
+					session.setAttribute("username", name);
+					session.setAttribute("useremail", email);
+
+					System.out.println("Session username: " + session.getAttribute("username"));
+					System.out.println("Session email: " + session.getAttribute("useremail"));
+
+					// Forward to welcome.jsp
 					RequestDispatcher dispatcher = request.getRequestDispatcher("welcome.jsp");
 					dispatcher.forward(request, response);
 				} else {
@@ -56,6 +63,8 @@ public class RegistrationServlet extends HttpServlet {
 		} catch (SQLException e) {
 			e.printStackTrace();
 			out.println("<h2>Error: " + e.getMessage() + "</h2>");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 }
